@@ -403,6 +403,10 @@ async def on_message(message):
                 await message.add_reaction(CHAR_SUCCESS)
                 await message.channel.send("**" + pspn + "**: " + str(psps))
     """
+    if str(message.content).startswith("??refresh"):
+        if memberadmin(message):
+            dl()
+            await message.add_reaction(CHAR_SUCCESS)
     if str(message.content).startswith("??suggest "):
         # ??suggest <points> [optional range]
         spm = str(message.content).replace("??suggest ",""); spm = spm.split(" ")
