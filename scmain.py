@@ -404,7 +404,7 @@ async def on_message(message):
                 await message.channel.send("**" + pspn + "**: " + str(psps))
     """
     if str(message.content).startswith("??refresh"):
-        if memberadmin(message):
+        if memberadmin(message.author):
             dl()
             await message.add_reaction(CHAR_SUCCESS)
     if str(message.content).startswith("??suggest "):
@@ -489,30 +489,6 @@ async def on_message(message):
                                         await message.add_reaction(CHAR_SUCCESS)
                                         await message.channel.send("**" + sppld['name'] + "**: Beating " + spgdm +
                                                                           " will give you *" + str(spgp) + "* list points")
-    if str(message.content).startswith("??startdrlw "):
-        # ??startdrlw <channel name>
-        if not memberadmin(message.author):
-            await message.add_reaction(CHAR_FAILED)
-            await message.channel.send("**Error**: You are not an Administrator!")
-        else:
-            swlm = str(message.content).replace("??startdrlw",""); swlp = paramquotationlist(swlm)
-            if len(swlp) != 1:
-                await message.add_reaction(CHAR_FAILED)
-                await message.channel.send("**Error**: Invalid command")
-            else:
-                swlc = getchannel(message.guild,swlp[0])
-                if swlc is None:
-                    await message.add_reaction(CHAR_FAILED)
-                    await message.channel.send("**Error**: Invalid channel")
-                else:
-                    if datasettings(file="sclw.txt",method="get",line=str(message.guild.id)) is not None:
-                        await message.add_reaction(CHAR_FAILED)
-                        await message.channel.send("**Error**: Demon Racing leaderboard already set up!")
-                    else:
-                        datasettings(file="sclw.txt",method="add",newkey=str(message.guild.id),newvalue=str(swlc.id))
-                        await message.add_reaction(CHAR_SUCCESS)
-                        await message.channel.send("**" + message.author.name + "**: Demon Racing leaderboard set up in "
-                                                                                "channel *" + swlc.name + "*")
     """
     if str(message.content).startswith("??recordcount "):
         # ??recordcount <demon name>
