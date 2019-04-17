@@ -18,6 +18,7 @@ SECRET = sl[0]
 
 DEMONSLIST = []
 DLPOINTS = []
+DLPOINTS = []
 #DLRCOUNT = []
 
 CHAR_SUCCESS = "✅"
@@ -218,6 +219,19 @@ def lpr(data):
     return s
 
 def lp(data):
+    global DEMONSLIST
+    if data is None: return None
+    # requires data from PLAYERDATA()
+    s = 0
+    for d in data['records']:
+        if int(d['demon']['position']) <= 100:
+            s += (((d['progress'] / 100) ** 5) * (100 / (math.exp(0.03 * (d['demon']['position'] - 1)))))
+    for d in data['verified']:
+        if int(d['position']) <= 100:
+            s += (((100 / 100) ** 5) * (100 / (math.exp(0.03 * (d['position'] - 1)))))
+    return s
+
+def oldlp(data):
     # requires data from pls()
     s = 0
     for d in data['beaten']:
@@ -247,7 +261,7 @@ def simadd(id,new):
         ndemon = dget(new)
         if ndemon is not None:
             olp = lp(pdata)
-            pdata['beaten'].append(ndemon)
+            pdata['records'].append(ndemon)
             nlp = lp(pdata)
             return nlp - olp
     return None
@@ -261,9 +275,9 @@ def dl():
     except:
         print("Could not access Demons List")
         return
-    rt1 = rt1[2:len(rt1) - 3]; rt2 = rt2[2:len(rt2) - 3 ]
-    rt1 = rt1.replace("\\n",""); rt2 = rt2.replace("\\n","")
-    rt1 = rt1.replace("  ",""); rt2 = rt2.replace("  ","")
+    rt1 = rt1[2:len(rt1) - 1]; rt2 = rt2[2:len(rt2) - 1]
+    rt1 = rt1.replace("\\n", ""); rt2 = rt2.replace("\\n", "")
+    rt1 = rt1.replace("  ", ""); rt2 = rt2.replace("  ", "")
     rj1 = json.loads(rt1); rj2 = json.loads(rt2)
     DEMONSLIST = []
     for d1 in rj1: DEMONSLIST.append(d1)
@@ -271,7 +285,7 @@ def dl():
     global DLPOINTS
     #global DLRCOUNT
     for d in DEMONSLIST:
-        dp = (100 / ((100/5) + ((-100/5) + 1) * math.exp(-0.008*int(d['position']))))
+        dp = (((100 / 100) ** 5) * (100 / (math.exp(0.03 * (d['position'] - 1)))))
         DLPOINTS.append({'name':d['name'],'position':d['position'],'points':dp})
         #DLRCOUNT.append({'name':d['name'],'position':d['position'],'count':drcount(drd(d['name']))})
     print("Demons List Data ready!")
@@ -320,7 +334,7 @@ async def on_message(message):
                     await message.channel.send("**Error**: You are linked to an invalid Pointercrate Player!")
                 else:
                     ctv = False
-                    try: ct = cdpl['beaten']
+                    try: ct = cdpl['records']
                     except: ctv = True
                     if ctv:
                         await message.add_reaction(CHAR_FAILED)
@@ -340,8 +354,8 @@ async def on_message(message):
                                             dpf = True
                                         else:
                                             dppb = False
-                                            for pb in cdpl['beaten']:
-                                                if pb['name'] == dp['name']: dppb = True
+                                            for pb in cdpl['records']:
+                                                if pb['demon']['name'] == dp['name']: dppb = True
                                             for pb in cdpl['verified']:
                                                 if pb['name'] == dp['name']: dppb = True
                                             if not dppb:
@@ -355,8 +369,8 @@ async def on_message(message):
                                             dpf = True
                                         else:
                                             dppb = False
-                                            for pb in cdpl['beaten']:
-                                                if pb['name'] == dp['name']: dppb = True
+                                            for pb in cdpl['records']:
+                                                if pb['demon']['name'] == dp['name']: dppb = True
                                             for pb in cdpl['verified']:
                                                 if pb['name'] == dp['name']: dppb = True
                                             if not dppb:
@@ -425,7 +439,7 @@ async def on_message(message):
                     await message.channel.send("**Error**: You are linked to an invalid Pointercrate Player!")
                 else:
                     ctv = False
-                    try: ct = sppld['beaten']
+                    try: ct = sppld['records']
                     except: ctv = True
                     if ctv:
                         await message.add_reaction(CHAR_FAILED)
@@ -464,8 +478,8 @@ async def on_message(message):
                                     while spgp < spp and rvt < 100:
                                         rv = random.randint(1,100)
                                         for d in DLPOINTS:
-                                            if d['position'] == rv and not any(pd['name'] == d['name'] for pd in
-                                                                               sppld['beaten']) and d['name'] not in spgd:
+                                            if d['position'] == rv and not any(pd['demon']['name'] == d['name'] for pd in
+                                                                               sppld['records']) and d['name'] not in spgd:
                                                 if md == 1 and spp > 30:
                                                     if d['points'] < (spp / 3):
                                                         tva = spgp + d['points']
